@@ -1,0 +1,31 @@
+from deepfos.options import OPTION
+
+# -----------------------------------------------------------------------------
+# 从系统中获取以下参数
+#: 环境参数
+# para1 = {'app': 'yhacsq010', 'space': 'yhacsq', 'user': '9e3d21a3-bda3-4d9c-9a70-a7ae562ba184', 'language': 'zh-cn', 'token': 'F75B30BC6E2A6B57192C0A4F2796D2934348298A22345106D7F08F63306CC81C', 'cookie': 'OAUTH2SESSION=NjA4MzUyYTYtZjJiMy00MDFlLWJlZWQtMWRkODIzOTkyMWQ1; deepfos_users=%7B%22email%22%3A%22%22%2C%22invitationActivation%22%3Atrue%2C%22nickName%22%3A%22%E7%8E%8B%E6%94%BF%22%2C%22nickname%22%3A%22%E7%8E%8B%E6%94%BF%22%2C%22token%22%3A%22F75B30BC6E2A6B57192C0A4F2796D2934348298A22345106D7F08F63306CC81C%22%2C%22tokenKey%22%3A%22deepfos_token%22%2C%22type%22%3A1%2C%22userId%22%3A%229e3d21a3-bda3-4d9c-9a70-a7ae562ba184%22%2C%22username%22%3A%22v-wangzheng%22%7D; deepfos_token=F75B30BC6E2A6B57192C0A4F2796D2934348298A22345106D7F08F63306CC81C', 'Content-Type': 'application/json;charset=UTF8'}
+para1 = {'app': 'yhacsq014', 'space': 'yhacsq', 'user': '41cba8da-cf06-4b4d-8104-46e9900ea0e5', 'language': 'zh-cn', 'token': 'C820CCAEE16E5B1B3E6A4B5558A422BA565106D23E4DB67B40233C5A68DB2CE9', 'cookie': 'deepfos_token=C820CCAEE16E5B1B3E6A4B5558A422BA565106D23E4DB67B40233C5A68DB2CE9; deepfos_users=%7B%22expireAt%22%3A1784682853123%2C%22invitationActivation%22%3Atrue%2C%22mobilePhone%22%3A%2213671042437%22%2C%22nickName%22%3A%22%E9%99%88%E6%99%B6%E7%A3%8A%22%2C%22nickname%22%3A%22%E9%99%88%E6%99%B6%E7%A3%8A%22%2C%22token%22%3A%22C820CCAEE16E5B1B3E6A4B5558A422BA565106D23E4DB67B40233C5A68DB2CE9%22%2C%22tokenKey%22%3A%22deepfos_token%22%2C%22type%22%3A1%2C%22userId%22%3A%2241cba8da-cf06-4b4d-8104-46e9900ea0e5%22%2C%22username%22%3A%22w-chenjinglei01%22%7D', 'envUrl': 'http://web-gateway'}
+
+# para11 = {'app': 'eemapg001', 'space': 'eemapg', 'user': '1ef2c32f-4a07-4f19-bff0-bf3bd2e662df', 'language': 'zh-cn', 'token': '675DAA54DABB51FEAA4CFCFABEA13EFAFBD06DCD88D5E2687C879ED43F60D4A1', 'cookie': 'deepfos_users=%7B%22invitationActivation%22%3Atrue%2C%22nickName%22%3A%22chenjinglei%22%2C%22nickname%22%3A%22chenjinglei%22%2C%22token%22%3A%22675DAA54DABB51FEAA4CFCFABEA13EFAFBD06DCD88D5E2687C879ED43F60D4A1%22%2C%22tokenKey%22%3A%22deepfos_token%22%2C%22type%22%3A1%2C%22userId%22%3A%221ef2c32f-4a07-4f19-bff0-bf3bd2e662df%22%2C%22username%22%3A%22chenjinglei%22%7D; deepfos_token=675DAA54DABB51FEAA4CFCFABEA13EFAFBD06DCD88D5E2687C879ED43F60D4A1', 'envUrl': 'http://web-gateway'}
+
+
+#: 业务参数
+para2 = {'currentStatus': 'Status587e', 'operationTime': '2021-07-27 14:48:53', 'operationUser': '1fff29c5-abdc-4929-ab6c-8a6ca9479091', 'pcRemark': '', 'primaryKeyValue': {'partition_id': 'SUBEEB6VDKAO0I', 'sub_id': '1', 'sys_store_id': 'fran_store0003'}, 'targetStatus': 'Statusa600'}
+
+#: 环境域名，根据自己的使用环境更改
+# host = "https://alpha.deepfos.com"
+host = "https://budget-uat.bewg.net.cn"
+
+
+
+# -----------------------------------------------------------------------------
+# 下面的代码是固定的
+
+OPTION.general.use_eureka = False
+OPTION.server.base = f"{host}/seepln-server"
+OPTION.server.app = f"{host}/seepln-server/app-server"
+OPTION.server.system = f"{host}/seepln-server/system-server"
+OPTION.server.space = f"{host}/seepln-server/space-server"
+OPTION.server.platform_file = f"{host}/seepln-server/platform-file-server"
+OPTION.api.header = para1
+OPTION.api.dump_on_failure = True

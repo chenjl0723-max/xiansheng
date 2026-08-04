@@ -1,0 +1,49 @@
+# 业务预算下发的kafka服务地址——业务预算UAT地址
+kafka_setting_budget_uat = {
+    "group_id_ws": "T0080",
+    'bootstrap_servers': [
+        "alikafka-pre-cn-2r42hmobn01z-1-vpc.alikafka.aliyuncs.com:9092",
+        "alikafka-pre-cn-2r42hmobn01z-2-vpc.alikafka.aliyuncs.com:9092",
+        "alikafka-pre-cn-2r42hmobn01z-3-vpc.alikafka.aliyuncs.com:9092"
+    ],
+
+    'topic_name': 'source_mdms_bizbud_inc',
+    # 'topic_name': 'source_mdms_bizbud_all',
+    # 'group_name': 'XXX'
+}
+
+# 业务预算下发的kafka服务地址——主数据的test地址
+kafka_setting_budget_test = {
+    'bootstrap_servers': [
+        "alikafka-pre-cn-7mz2cn5pt00q-1-vpc.alikafka.aliyuncs.com:9092",
+        "alikafka-pre-cn-7mz2cn5pt00q-2-vpc.alikafka.aliyuncs.com:9092",
+        "alikafka-pre-cn-7mz2cn5pt00q-3-vpc.alikafka.aliyuncs.com:9092",
+    ],
+    'topic_name': 'source_mdms_bizbud_inc',
+}
+
+
+
+
+# 主数据平台kafka服务地址UAT
+kafka_setting_main = {
+    'bootstrap_servers': [
+        "alikafka-pre-cn-2r42hmobn01z-1-vpc.alikafka.aliyuncs.com:9092",
+        "alikafka-pre-cn-2r42hmobn01z-2-vpc.alikafka.aliyuncs.com:9092",
+        "alikafka-pre-cn-2r42hmobn01z-3-vpc.alikafka.aliyuncs.com:9092"
+    ],
+    # 'topic_name': 'mdms_xm_all',
+    # 'group_name': 'XXX'
+}
+
+# 主数据平台kafka服务地址UAT
+kafka_setting_main_test = {
+    'bootstrap_servers': [
+        "alikafka-pre-cn-7mz2cn5pt00q-1-vpc.alikafka.aliyuncs.com:9092",
+        "alikafka-pre-cn-7mz2cn5pt00q-2-vpc.alikafka.aliyuncs.com:9092",
+        "alikafka-pre-cn-7mz2cn5pt00q-3-vpc.alikafka.aliyuncs.com:9092",
+    ],
+    # 'topic_name': 'mdms_xm_all',
+    # 'group_name': 'XXX'
+}
+
