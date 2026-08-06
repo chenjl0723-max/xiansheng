@@ -97,6 +97,29 @@ def convert_to_middle(df, year, Entity,value_col='data', result_col='data'):
     return df
 
 
+def expand_period(df, period_col='Period', noperiod_val='Noperiod'):
+    """将 Noperiod 展开为 1-12 月，每月数值相同"""
+    noperiod_mask = df[period_col] == noperiod_val
+    if not noperiod_mask.any():
+        return df
+
+    noperiod_df = df[noperiod_mask].copy()
+    other_df = df[~noperiod_mask].copy()
+    periods = [str(i) for i in range(1, 13)]
+
+    expanded_list = []
+    for _, row in noperiod_df.iterrows():
+        for p in periods:
+            row_copy = row.copy()
+            row_copy[period_col] = p
+            expanded_list.append(row_copy)
+
+    expanded_df = pd.DataFrame(expanded_list)
+    if other_df.empty:
+        return expanded_df
+    return pd.concat([other_df, expanded_df], ignore_index=True)
+
+
 def material_processing(p1, p2, Entity,year, Version):
     """
     :param material_list: 要处理的物料列表，如 ['MQ01', 'MQ03', 'MQ05']，None 表示处理所有
@@ -154,7 +177,7 @@ def material_processing(p1, p2, Entity,year, Version):
 
     cube = FinancialCube('WS_cube')
 
-    cube.save(material_df, chunksize=200000)
+    cube.save(expand_period(material_df), chunksize=200000)
 
 
 
@@ -164,7 +187,7 @@ def material_processing(p1, p2, Entity,year, Version):
 
 
     # 9. 保存中类数据
-    cube.save(zhonglei_df, chunksize=200000)
+    cube.save(expand_period(zhonglei_df), chunksize=200000)
     return
 
 
@@ -332,26 +355,9 @@ def calc_y0_budget(p1, p2,Entity, year, Version):
     zhonglei_df = convert_to_middle(result, last_year,Entity, value_col='data', result_col='data')
 
 
-    # =========================================================
-    # 10. 删除旧数据并保存
-    # =========================================================
-    del_expr = {
-        'Year': str(year),
-        'Scenario': 'Budget',
-        'Version': 'Y0',
-        'Measure': 'Expenses',
-        'Period': [str(i) for i in range(1, 13)],
-        'Tax': 'Tax',
-        'Department': 'Operation',
-        'Allocation': 'Original',
-        'Misc1': 'Nomisc1',
-        'Misc2': 'Nomisc2',
-        'Account': ['YW0304', 'YW0316'],
-        'Material': 'Base(MQ01,0);Base(MQ03,0);Base(MQ05,0)'
-    }
-    # cube.delete(del_expr)
-    cube.save(result, chunksize=200000)
-    cube.save(zhonglei_df, chunksize=200000)
+
+    cube.save(expand_period(result), chunksize=200000)
+    cube.save(expand_period(zhonglei_df), chunksize=200000)
 
 
     print(f"✅ Y0 预算单耗计算完成，共 {len(result)} 条记录")
@@ -468,8 +474,8 @@ def calc_y0_budget_mq00(p1, p2, Entity,year, Version):
     # =========================================================
     # 6. 保存
     # =========================================================
-    cube.save(result, chunksize=200000)
-    print(f"✅ MQ00 Y0 预算单耗计算完成，共 {len(result)} 条记录")
+    cube.save(expand_period(result), chunksize=200000)
+    print(f"✅ MQ00 Y0 预算单耗计算完成，共 {len(result)} 条记录，展开后 {len(expand_period(result))} 条")
     return result
 
 
