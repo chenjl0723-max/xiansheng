@@ -178,7 +178,7 @@ def push_processing(df,account_scope):
     cube.insert_null(expr_dict_budget)
     cube.insert_null(expr_dict_forecast)
     # 存数
-    cube.save(df,chunksize=50000)
+    cube.save(df,chunksize=200000)
 
 def main(p1, p2):
     # hr_budget_data,account_scope = hr_processing(p1, p2)

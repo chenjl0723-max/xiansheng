@@ -78,7 +78,7 @@ def actual_processing(p1, p2,year,Version):
 
 
     # 处理出并表实际数
-    cols = ['period', 'year', 'entity_cd', 'account_cd', 'commerical', 'Consol', 'data']
+    cols = ['period', 'year', 'entity_cd', 'account_cd', 'commerical', 'counterparty', 'data']
     where = "year = '%s' and counterparty != 'nocp' " % year
 
     cons_df = act_dt.select(columns=cols, where=where)
@@ -88,27 +88,18 @@ def actual_processing(p1, p2,year,Version):
         "year": "Year",
         "account_cd": "Account_zijin",
         "commerical":"Commercial",
-        # "counterparty": "Counterparty",
+        "counterparty": "Counterparty",
     })
+    cons_df['Scenario'] = 'Actual_adjb'
 
-
-    cons_df['Counterparty'] = cons_df['Consol'].apply(lambda x: 'XN03' if x == 1 else 'XN04')
-    del cons_df['Consol']
-    print(cons_df)
-
-
-
+    # cons_df['Counterparty'] = cons_df['Consol'].apply(lambda x: 'XN03' if x == 1 else 'XN04')
+    # del cons_df['Consol']
+    # print(cons_df)
 
 
 
-
-
-
-
-
-
-
-    act_df = pd.concat([act_df,act_xn])
+    act_df = pd.concat([act_df,act_xn,cons_df])
+    act_df.loc[act_df['Account_zijin'] == 'CF09', 'Account_zijin'] = 'CF0901'
 
     act_df['Version'] = Version
     act_df['Measure'] = 'Expenses'
@@ -146,7 +137,7 @@ def actual_processing(p1, p2,year,Version):
     }
     cube.delete(expr_dict_actual)
 
-    cube.save(act_df,chunksize=50000)
+    cube.save(act_df,chunksize=400000)
 
 
 
