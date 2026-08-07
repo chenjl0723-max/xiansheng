@@ -71,10 +71,12 @@ def actual_processing(p1, p2,year,Version):
     act_df['Scenario'] = 'Actual_adjb'
 
 
-    # 筛选条件：Entity_FR 列以 'XN' 开头，并且 Counterparty 列等于 'nocp'
-    act_xn = act_df[act_df['Entity_FR'].str.startswith('XN') & (act_df['Counterparty'] == 'nocp')]
+    # 筛选条件：Entity_FR 列以 'XN' 开头，并且 Counterparty 列等于 'nocp'，将Sep替换为9
+    act_xn = act_df[act_df['Entity_FR'].str.startswith('XN') & (act_df['Counterparty'] == 'nocp') & (act_df['Period'].isin(['Sep','10','11','12']))].copy()
     act_xn['data'] = act_xn['data'] * -1
     act_xn['Scenario'] = 'Actual_adj'
+    # 将Period为'Sep'的记录替换为'9'
+    act_xn.loc[act_xn['Period'] == 'Sep', 'Period'] = '9'
 
 
     # 处理出并表实际数
