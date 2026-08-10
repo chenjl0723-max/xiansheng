@@ -263,7 +263,7 @@ def generate_yw0202_days(cube, Entity, year):
     df_budget['Misc2'] = 'Nomisc2'
     result_list.append(df_budget)
     print(f"   YW0202 本年预算(日历天数): {len(df_budget)} 条")
-    print(1)
+
 
     # --- 预测: last_year年 10-12月日历天数 ---
     month_days_fc = [
