@@ -70,6 +70,10 @@ def actual_processing(p1, p2,year,Version):
 
     act_df['Scenario'] = 'Actual_adjb'
 
+    # CF01科目只保留 1、10、11、12月
+    cf01_mask = act_df['Account_zijin'] == 'CF01'
+    act_df = act_df[~cf01_mask | act_df['Period'].isin(['1', '10', '11', '12'])]
+
 
     # 筛选条件：Entity_FR 列以 'XN' 开头，并且 Counterparty 列等于 'nocp'，将Sep替换为9
     act_xn = act_df[act_df['Entity_FR'].str.startswith('XN') & (act_df['Counterparty'] == 'nocp') & (act_df['Period'].isin(['Sep','10','11','12']))].copy()
@@ -156,137 +160,20 @@ def actual_processing(p1, p2,year,Version):
     company_sum(p1, p2)
     investment_sum(p1, p2)
 
-    sum_actual_adjb_period_processing(p1,p2)
-    sum_actual_adj_period_processing(p1,p2)
+    # 计算资金填报主表全年合计
+    from actual_sum_period_zijin_cube import sum_actual_adjb_period_processing as adjb_noperiod
+    from actual_sum_period_zijin_cube import sum_actual_adj_period_processing as adj_noperiod
+    from actual_sum_period_zijin_cube import CF01_noperiod_processing as cf01_noperiod
+
+    p2 = {'Year_wb1': Year,
+         'Entity_FR_wb1': 'D000001',
+         'Version_wb1': Version,}
+
+    adjb_noperiod(p1,p2)
+    adj_noperiod(p1,p2)
+    cf01_noperiod(p1,p2)
 
 
-
-def sum_actual_adjb_period_processing(p1,p2):
-    Year = p2['Year_wb1']
-    last_Year = str(int(Year)-1)
-    Version = p2['Version_wb1']
-    Entity_FR = p2['Entity_FR_wb1']
-
-
-    sc_10 = Variable('Variable').get('zj_10_scenario')
-    sc_11 = Variable('Variable').get('zj_11_scenario')
-    sc_12 = Variable('Variable').get('zj_12_scenario')
-
-
-    cube = FinancialCube('sub_fund_cube')
-    fix_act_adjb = "Year{%s}->Scenario{actual_adjb}->Version{%s}->Period{Sep;10;11;12}->Comprehensive{nocompr}->Counterparty{nocp}->" \
-                      "Entity_FR{%s}->Measure{Expenses}->Account_zijin{Base(CF00,0)}->" \
-                      "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
-                      % (last_Year, Version, Entity_FR)
-
-    act_df =  cube.query(fix_act_adjb, compact=False)
-    fix_forecast = "Year{%s}->Scenario{Forecast}->Version{%s}->Period{10;11;12}->Comprehensive{nocompr}->Counterparty{nocp}->" \
-                   "Entity_FR{%s}->Measure{Expenses}->Account_zijin{Base(CF00,0)}->" \
-                   "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
-                   % (last_Year, Version, Entity_FR)
-
-    df_forecast = cube.query(fix_forecast, compact=False)
-
-    if act_df.empty and df_forecast.empty:
-        print("实际数和预测数都为空，无需处理。")
-        return
-
-
-    # 根据scenario配置确定数据来源
-
-    if sc_10 == 'Forecast' and sc_11 == 'Forecast' and sc_12 == 'Forecast':
-        # 10、11、12月均为预测 → 实际数只取 Sep
-        act_periods = act_df[act_df['Period'] == 'Sep']
-        forecast_periods = df_forecast[df_forecast['Period'].isin(['10', '11', '12'])]
-        combined_df = pd.concat([act_periods, forecast_periods], ignore_index=True)
-
-    elif sc_10 == 'Actual_adjb' and sc_11 == 'Forecast' and sc_12 == 'Forecast':
-        # sc_10 为 Actual → 实际数取 Sep + 10月，预测取 11 + 12月
-        act_periods = act_df[act_df['Period'].isin(['Sep', '10'])]
-        forecast_periods = df_forecast[df_forecast['Period'].isin(['11', '12'])]
-        combined_df = pd.concat([act_periods, forecast_periods], ignore_index=True)
-
-    elif sc_10 == 'Actual_adjb' and sc_11 == 'Actual_adjb' and sc_12 == 'Forecast':
-        # sc_11 为 Actual → 实际数取 Sep + 10 + 11月，预测取 12月
-        act_periods = act_df[act_df['Period'].isin(['Sep', '10', '11'])]
-        forecast_periods = df_forecast[df_forecast['Period'] == '12']
-        combined_df = pd.concat([act_periods, forecast_periods], ignore_index=True)
-
-    else:
-        # 默认情况：全部使用实际数（Sep,10,11,12）
-        combined_df = act_df[act_df['Period'].isin(['Sep', '10', '11', '12'])].copy()
-
-
-    print(combined_df)
-
-    # 计算全年合计
-
-    # 按维度分组求和，排除Period维度
-    group_cols = [col for col in combined_df.columns if col not in ['Period', 'data','Scenario']]
-    yearly_sum = combined_df.groupby(group_cols, as_index=False)['data'].sum()
-
-    # 设置Period为'Noperiod'
-    yearly_sum['Period'] = 'Noperiod'
-    yearly_sum['Scenario'] = 'actual_adjb'
-
-
-    def_fix =  "Year{%s}->Scenario{actual_adjb}->Version{%s}->Period{Noperiod}->Comprehensive{nocompr}->Counterparty{nocp}->" \
-                      "Entity_FR{%s}->Measure{Expenses}->Account_zijin{Base(CF00,0)}->" \
-                      "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
-                      % (last_Year, Version, Entity_FR)
-
-    cube.delete(def_fix)
-    # 打印结果
-    print("实际数全年合计数据（Period=Noperiod）：")
-    cube.save(yearly_sum, chunksize=200000)
-
-
-def sum_actual_adj_period_processing(p1,p2):
-    Year = p2['Year_wb1']
-    last_Year = str(int(Year)-1)
-    Version = p2['Version_wb1']
-    Entity_FR = p2['Entity_FR_wb1']
-
-
-    # sc_10 = Variable('Variable').get('zj_10_scenario')
-    # sc_11 = Variable('Variable').get('zj_11_scenario')
-    # sc_12 = Variable('Variable').get('zj_12_scenario')
-
-
-    cube = FinancialCube('sub_fund_cube')
-    fix_act_adj = "Year{%s}->Scenario{actual_adj}->Version{%s}->Period{Sep;10;11;12}->Comprehensive{nocompr}->Counterparty{nocp}->" \
-                      "Entity_FR{%s}->Measure{Expenses}->Account_zijin{Base(CF00,0)}->" \
-                      "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
-                      % (last_Year, Version, Entity_FR)
-
-    act_df =  cube.query(fix_act_adj, compact=False)
-
-
-    if act_df.empty:
-        print("实际数调整数都为空，无需处理。")
-        return
-
-
-    # 计算全年合计
-
-    # 按维度分组求和，排除Period维度
-    group_cols = [col for col in act_df.columns if col not in ['Period', 'data']]
-    yearly_sum = act_df.groupby(group_cols, as_index=False)['data'].sum()
-
-    # 设置Period为'Noperiod'
-    yearly_sum['Period'] = 'Noperiod'
-    # yearly_sum['Scenario'] = 'actual_adjb'
-
-
-    def_fix =  "Year{%s}->Scenario{actual_adj}->Version{%s}->Period{Noperiod}->Comprehensive{nocompr}->Counterparty{nocp}->" \
-                      "Entity_FR{%s}->Measure{Expenses}->Account_zijin{Base(CF00,0)}->" \
-                      "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
-                      % (last_Year, Version, Entity_FR)
-
-    cube.delete(def_fix)
-    # 打印结果
-    print("实际数全年合计数据（Period=Noperiod）：")
-    cube.save(yearly_sum, chunksize=200000)
 
 
 
