@@ -102,7 +102,7 @@ def mapping_and_group(df):
     group_cols = [col for col in df.columns if col != 'data']
     # exist_cols = [col for col in group_cols if col in df.columns]
     df = df.groupby(group_cols, as_index=False)['data'].sum()
-
+    print(1)
 
     return df
 
