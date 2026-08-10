@@ -64,7 +64,7 @@ def query_CS_cube(pov,Year,Version,cube):
     for pov in pov_list:
         fix = "Year{%s}->Version{%s}->" \
               "Entity_FR{Base(#root,0)}->" \
-              "Scenario{%s}->Period{%s}"\
+              "Scenario{%s}->Period{%s}->Misc1{ct001}"\
         %(Year, Version,Scenario, Period)
         df = cube.query(expression=fix, pov=pov,compact=False)
         if not df.empty:
