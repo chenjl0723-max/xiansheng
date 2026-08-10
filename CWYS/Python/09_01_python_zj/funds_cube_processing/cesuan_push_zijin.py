@@ -122,6 +122,7 @@ def push_to_cube(df,Scenario):
     df['Counterparty'] = 'nocp'
     df['Comprehensive'] = 'nocompr'
     df['Scenario'] = Scenario
+    df['Misc1'] = 'nomisc1'
 
     df = df.rename(columns={'CW_CS_Account': 'Account_zijin'})
 
