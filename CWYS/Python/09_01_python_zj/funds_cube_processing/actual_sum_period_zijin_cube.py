@@ -202,14 +202,23 @@ def CF01_noperiod_processing(p1,p2):
     Entity_FR = p2['Entity_FR_wb1']
 
     cube = FinancialCube('sub_fund_cube')
-    fix_act_adjb = "Year{%s}->Scenario{actual_adjb}->Version{%s}->Period{1}->Comprehensive{nocompr}->Counterparty{nocp}->" \
+    fix_act_adjb = "Year{%s}->Scenario{actual_adjb}->Version{%s}->Period{Sep}->Comprehensive{nocompr}->Counterparty{nocp}->" \
                       "Entity_FR{IBase(%s,0)}->Measure{Expenses}->Account_zijin{CF01}->" \
                       "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
                       % (last_Year, Version, Entity_FR)
     act_df =  cube.query(fix_act_adjb, compact=False)
     act_df['Period'] = 'Noperiod'
 
-    def_fix =  "Year{%s}->Scenario{actual_adjb}->Version{%s}->Period{Noperiod}->Comprehensive{nocompr}->Counterparty{nocp}->" \
+    fix_act_adj = "Year{%s}->Scenario{actual_adj}->Version{%s}->Period{Sep}->Comprehensive{nocompr}->Counterparty{nocp}->" \
+                      "Entity_FR{IBase(%s,0)}->Measure{Expenses}->Account_zijin{CF01}->" \
+                      "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
+                      % (last_Year, Version, Entity_FR)
+    act_df_adj =  cube.query(fix_act_adj, compact=False)
+    act_df_adj['Period'] = 'Noperiod'
+
+    act_df = pd.concat([act_df,act_df_adj],ignore_index=True)
+
+    def_fix =  "Year{%s}->Scenario{actual_adj;actual_adjb}->Version{%s}->Period{Noperiod}->Comprehensive{nocompr}->Counterparty{nocp}->" \
                       "Entity_FR{IBase(%s,0)}->Measure{Expenses}->Account_zijin{CF01}->" \
                       "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
                       % (last_Year, Version, Entity_FR)

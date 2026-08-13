@@ -9,7 +9,7 @@
 
 
 try:
-    from CWYS._debug import para1, para2
+    from CWYS.__debug import para1, para2
     # print(para1)
 except ImportError:
     para1 = para2 = {}
@@ -119,6 +119,7 @@ def tax_rate_processing_act(act_df, Year,Version):
             "Version": Version,
         }
         cube.insert_null(expr_dict_actual)
+        df_all['Version'] = 'V4'
         push_processing(df_all, Year,'Actual')
         return
 
@@ -271,7 +272,6 @@ def push_processing(act_df,year,Scenario):
     df['Misc2'] = 'nomisc2'
 
 
-
     cube = FinancialCube('sub_profit_cube')
 
 
@@ -282,7 +282,7 @@ def XYT_processing(p1,p2,year,Version):
 
 
     # 进入小业态系统
-    p1['app'] = 'yhacsq016'
+    p1['app'] = 'eemapg012'
     OPTION.api.header = p1
 
     cube = FinancialCube('S_Cube')
@@ -319,7 +319,7 @@ def XYT_processing(p1,p2,year,Version):
 
 
     # 进入财务预算系统
-    p1['app'] = 'yhacsq023'
+    p1['app'] = 'eemapg016'
     OPTION.api.header = p1
     push_processing(act_df, year,'Actual')
 

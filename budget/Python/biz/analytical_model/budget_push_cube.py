@@ -9,7 +9,7 @@
 
 
 try:
-    from common.__debug import para1, para2
+    from budget.__debug import para1, para2
     # print(para1)
 except ImportError:
     para1 = para2 = {}
@@ -353,8 +353,29 @@ def main(p1, p2):
         # "Year": ['2020','2021','2022','2023','2024','2025','2026','2027']
         "Entity_org": "IDescendant(#root,0)"
     }
+
+    Account_dim = Dimension('Account')
+    Account_list = pd.DataFrame(Account_dim.query(expression="Base(#root,0)", fields=['name'], as_model=False))
+    df = df[df['Account'].isin(Account_list['name'])]
+
+    Account_XYT_dim = Dimension('Account_XYT')
+    Account_XYT_list = pd.DataFrame(Account_XYT_dim.query(expression="Base(#root,0)", fields=['name'], as_model=False))
+    df = df[df['Account_XYT'].isin(Account_XYT_list['name'])]
+
+    Account_GB_dim = Dimension('Account_GB')
+    Account_GB_list = pd.DataFrame(Account_GB_dim.query(expression="Base(#root,0)", fields=['name'], as_model=False))
+    df = df[df['Account_GB'].isin(Account_GB_list['name'])]
+    #
+    # Entity_manag_dim = Dimension('Entity_manag')
+    # Entity_manag_list = pd.DataFrame(Entity_manag_dim.query(expression="Base(#root,0)", fields=['name'], as_model=False))
+    # df = df[df['Entity_manag'].isin(Entity_manag_list['name'])]
+    #
+    # Entity_org_dim = Dimension('Entity_org')
+    # Entity_org_list = pd.DataFrame(Entity_org_dim.query(expression="Base(#root,0)", fields=['name'], as_model=False))
+    # df = df[df['Entity_org'].isin(Entity_org_list['name'])]
+    #
     cube.insert_null(expr_dict)
-    cube.save(df,chunksize=20000)
+    cube.save(df,chunksize=100000)
 
 # debug
 if __name__ == '__main__':

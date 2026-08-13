@@ -59,7 +59,7 @@ def query_CS_cube(pov,Year,Version,cube):
     Scenario =  pov.get('Scenario')
     Period =  ';'.join(pov.get('Period'))
 
-    pov_list = [{'Measure':'Expenses','CW_CS_Account':'TK_Expenses'},{'Measure':'Adjusted_Expenses','CW_CS_Account':'HK_Expenses'},{'Measure':'Expenses','CW_CS_Account':'Int_Amt_ZJ'}]
+    pov_list = [{'Measure':'Expenses','CW_CS_Account':'TK_Expenses'},{'Measure':'Rev_Expenses','CW_CS_Account':'HK_Expenses'},{'Measure':'Expenses','CW_CS_Account':'Int_Amt_ZJ'}]
     df_all = pd.DataFrame()
     for pov in pov_list:
         fix = "Year{%s}->Version{%s}->" \

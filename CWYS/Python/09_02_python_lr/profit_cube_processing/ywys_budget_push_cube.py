@@ -9,7 +9,7 @@
 
 
 try:
-    from CWYS._debug import para1, para2
+    from CWYS.__debug import para1, para2
     # print(para1)
 except ImportError:
     para1 = para2 = {}
@@ -49,8 +49,9 @@ def group_and_sum(df, group_cols, value_col='figure'):
 
 def public_processing(p1, p2):
     # 公共层应用
-    p1['app'] = 'yhacsq015'
+    p1['app'] = 'eemapg007'
     OPTION.api.header = p1
+
 
     # 获取业务预算预算数据
     YS_dt = DataTableClickHouse('bewg_budget_data')
@@ -118,9 +119,10 @@ def public_processing(p1, p2):
 def CWYS_processing(p1, p2, df,account_scope):
 
 
-    # 写入财务预算分析模型
-    p1['app'] = 'yhacsq023'
+    # # 写入财务预算分析模型
+    p1['app'] = 'eemapg016'
     OPTION.api.header = p1
+
 
     # 获取变量年
     Year = Variable('Variable').get('BudYear')
@@ -129,17 +131,30 @@ def CWYS_processing(p1, p2, df,account_scope):
     Version = Variable('Variable').get('Edit_Ver')
     df['Version'] = Version
 
+    # 排除特定科目编码
+    exclude_accounts = {'SYW02020302', 'SYW02020301', 'SYW010105', 'SYW010103', 'SYW010104'}
+    account_scope = [acct for acct in account_scope if acct not in exclude_accounts]
+
     # 过滤不需要的科目
     account_dim = Dimension('Account_lirun')
     account_list = pd.DataFrame(account_dim.query(expression="Base(#root,0)", fields=['name'], as_model=False))
     df = df[df['Account_lirun'].isin(account_list['name'])]
+
+    missing_entities = df[~df['Account_lirun'].isin(account_list['name'])]['Account_lirun'].unique()
+    if len(missing_entities) > 0:
+        print(f"以下项目在业态维度中不存在，将被过滤掉: {list(missing_entities)}")
 
 
     # 关联业态
     entity_dim =  Dimension('Entity_GL')
     entity_df = pd.DataFrame(entity_dim.query(expression="Base(#root,0)", fields=['name','ud7'], as_model=False)).rename(columns={
         'name':'Entity_GL',
-        'ud7':'Commercial',})
+        'ud7':'Commercial',}).drop_duplicates(subset='Entity_GL')
+    # 输出不存在于业态维度中的项目
+    missing_entities = df[~df['Entity_GL'].isin(entity_df['Entity_GL'])]['Entity_GL'].unique()
+    if len(missing_entities) > 0:
+        print(f"以下项目在业态维度中不存在，将被过滤掉: {list(missing_entities)}")
+
     df = df[df['Entity_GL'].isin(entity_df['Entity_GL'])]
     df = df.merge(entity_df, how='left', on='Entity_GL')
 
@@ -174,9 +189,10 @@ def CWYS_processing(p1, p2, df,account_scope):
         "Comprehensive": ['Tax', 'NoTax'],
         "Version": Version,
     }
-    # cube.insert_null(expr_dict_budget)
-    # cube.insert_null(expr_dict_forecast)
-    cube.save(df,chunksize=200000)
+    cube.delete(expr_dict_budget)
+    cube.delete(expr_dict_forecast)
+    # df['Version'] = 'V1'
+    cube.save(df,chunksize=50000)
 
 def main(p1, p2):
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

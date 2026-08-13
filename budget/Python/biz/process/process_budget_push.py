@@ -9,7 +9,7 @@
 
 
 try:
-    from common.__debug import para1, para2
+    from budget.__debug import para1, para2
     # print(para1)
 except ImportError:
     para1 = para2 = {}

@@ -296,7 +296,7 @@ def actual_noperiod_processing(p1, p2, Version, Year):
     yearly_sum['Scenario'] = 'Actual'
 
 
-    def_fix =  "Year{%s}->Scenario{Actual}->Version{%s}->Period{Noperiod}->Comprehensive{nocompr}->Counterparty{nocp}->" \
+    def_fix =  "Year{%s}->Scenario{Actual}->Version{%s}->Period{Noperiod}->Counterparty{nocp}->" \
                       "Entity_FR{IBase(D000001,0)}->Measure{Expenses}->Account_zijin{Base(CF00,0)}->" \
                       "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}" \
                       % (Year, Version)
@@ -322,9 +322,9 @@ def main(p1, p2):
             Year = Variable('Variable').get('BudYear')
 
         cube = FinancialCube('sub_fund_cube')
-        # actual_processing(p1, p2, Version, Year,cube)
-        # forecast_processing(p1, p2, Version, Year,cube)
-        # budget_processing(p1, p2, Version, Year,cube)
+        actual_processing(p1, p2, Version, Year,cube)
+        forecast_processing(p1, p2, Version, Year,cube)
+        budget_processing(p1, p2, Version, Year,cube)
         actual_noperiod_processing(p1, p2, Version, Year)
         countAll = countSuccess = 1
         countMsg += f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} 资金填报进审核模型 rev_profit_cube 处理完成\n"

@@ -181,17 +181,23 @@ def copy_special_accounts(cube, Entity, year):
     df_0102_y2 = cube.query(fix_0102_y2, compact=False)
 
     # 按 Entity + Period 合并两年数据
-    merge_cols = ['Entity', 'Period']
-    df_0102_ly = df_0102_ly[merge_cols + ['data']].rename(columns={'data': 'data_ly'})
-    df_0102_y2 = df_0102_y2[merge_cols + ['data']].rename(columns={'data': 'data_y2'})
+    # merge_cols = ['Entity', 'Period']
+    # df_0102_ly = df_0102_ly[merge_cols + ['data']].rename(columns={'data': 'data_ly'})
+    # df_0102_y2 = df_0102_y2[merge_cols + ['data']].rename(columns={'data': 'data_y2'})
+    #
+    # df_0102_budget = df_0102_ly.merge(df_0102_y2, on=merge_cols, how='left')
 
-    df_0102_budget = df_0102_ly.merge(df_0102_y2, on=merge_cols, how='left')
+    df_0102_budget = df_0102_ly.merge(
+        df_0102_y2[['Period', 'Entity', 'data']],
+        on=['Period', 'Entity'],
+        suffixes=('_ly', '_y2'),
+        how='left'
+    )
+
     df_0102_budget['data_y2'] = df_0102_budget['data_y2'].fillna(0)
 
     # 预算 = year-1实际 * (1 + (year-1实际 - year-2实际))
-    df_0102_budget['data'] = df_0102_budget['data_ly'] * (
-        1 + (df_0102_budget['data_ly'] - df_0102_budget['data_y2'])
-    )
+    df_0102_budget['data'] = df_0102_budget['data_ly'] * (1 + (df_0102_budget['data_ly'] - df_0102_budget['data_y2']) / df_0102_budget['data_y2'])
 
     # 过滤有效数据
     df_0102_budget = df_0102_budget[(df_0102_budget['data'].notna()) & (df_0102_budget['data'] != 0)].copy()
@@ -325,7 +331,7 @@ def main(p1, p2):
 if __name__ == '__main__':
     test_para2 = {
         'Year_wb1': '2026',
-        'Entity_wb1': 'Y6120210005',
+        'Entity_wb1': 'Y1320210019',
     }
     if para2 and para2 != {} and 'Year_wb1' in para2:
         main(para1, para2)

@@ -74,13 +74,20 @@ def actual_processing(p1, p2,year,Version):
     cf01_mask = act_df['Account_zijin'] == 'CF01'
     act_df = act_df[~cf01_mask | act_df['Period'].isin(['1', '10', '11', '12'])]
 
+    # CF01科目1月数据复制一份，期间改为Sep
+    cf01_jan = act_df[(act_df['Account_zijin'] == 'CF01') & (act_df['Period'] == '1')].copy()
+    if not cf01_jan.empty:
+        cf01_jan['Period'] = 'Sep'
+        act_df = pd.concat([act_df, cf01_jan], ignore_index=True)
+
+
 
     # 筛选条件：Entity_FR 列以 'XN' 开头，并且 Counterparty 列等于 'nocp'，将Sep替换为9
     act_xn = act_df[act_df['Entity_FR'].str.startswith('XN') & (act_df['Counterparty'] == 'nocp') & (act_df['Period'].isin(['Sep','10','11','12']))].copy()
     act_xn['data'] = act_xn['data'] * -1
     act_xn['Scenario'] = 'Actual_adj'
     # 将Period为'Sep'的记录替换为'9'
-    act_xn.loc[act_xn['Period'] == 'Sep', 'Period'] = '9'
+    # act_xn.loc[act_xn['Period'] == 'Sep', 'Period'] = '9'
 
 
     # 处理出并表实际数
@@ -142,6 +149,15 @@ def actual_processing(p1, p2,year,Version):
         "Version": Version,
     }
     cube.delete(expr_dict_actual)
+    # expr_dict_actual = {
+    #     "Year": year,
+    #     "Scenario":'Actual_adj',
+    #     "Entity_FR": "IDescendant(#root,0)",
+    #     "Account_zijin": "IDescendant(#root,0)",
+    #     "Period": ["Base(TotalPeriod,0)","Sep"],
+    #     "Version": Version,
+    # }
+    # cube.delete(expr_dict_actual)
 
     cube.save(act_df,chunksize=400000)
 

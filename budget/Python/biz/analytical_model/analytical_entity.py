@@ -507,7 +507,7 @@ def main(p1, p2):
     entity_df = entity_df[['project_code', 'Format', 'Pattern', 'PM_Chars', 'Project_Type', 'Consv_Incrmt']]
 
     # 公共层应用
-    p1['app'] = 'yhacsq015'
+    p1['app'] = 'eemapg007'
     OPTION.api.header = p1
     YS_dt = DataTableClickHouse('bewg_budget_data')
     cols = ['Project_code', 'Project_name', 'Account_code', 'Account_name', 'Year_Code', 'Period_Code', 'Tax_code',
@@ -564,7 +564,7 @@ def main(p1, p2):
     df['Entity_manag'] = df['Entity_org']
 
     # 写入业务预算分析模型
-    p1['app'] = 'yhacsq014'
+    p1['app'] = 'eemapg011'
     OPTION.api.header = p1
     cube = FinancialCube('analytical_model')
     cube.save(df)
@@ -574,7 +574,7 @@ def main(p1, p2):
 
 
 if __name__ == "__main__":
-    from common.__debug import para1, para2
+    from budget.__debug import para1, para2
 
     # print('1',para1)
     main(para1, para2)
