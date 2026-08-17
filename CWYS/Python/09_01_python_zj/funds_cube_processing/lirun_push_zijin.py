@@ -5,7 +5,7 @@
 '''
 
 try:
-    from CWYS._debug import para1, para2
+    from CWYS.__debug import para1, para2
 except ImportError:
     para1 = para2 = {}
 
@@ -313,6 +313,7 @@ def main(p1, p2):
     try:
         # 统一获取全局参数
         Version = Variable('Variable').get('Edit_Ver')
+        Version = 'V4'
 
         if 'Year_wb1' in p2 and p2['Year_wb1']:
             Year = str(p2['Year_wb1'])
@@ -364,5 +365,5 @@ def main(p1, p2):
 
 # ==================== 本地调试 ====================
 if __name__ == '__main__':
-    para2 = {'elementName': 'found_budget_main', 'folderId': 'DIRcc223f9bef26', 'sheetName': '资金预算汇总(跳转明细)', 'sheetId': 'SHT5c5b6504ff19490e8a37fb4d43380264', 'Year_wb1': '2026', 'Entity_FR_wb1': 'Y3720241909', 'Version_wb1': 'V1', 'Commercial_wb1': 'YT020101'}  # 修改这里可测试不同年份
+    para2 = {'elementName': 'found_budget_main', 'folderId': 'DIRcc223f9bef26', 'sheetName': '资金预算汇总(跳转明细)', 'sheetId': 'SHT5c5b6504ff19490e8a37fb4d43380264', 'Year_wb1': '2026', 'Entity_FR_wb1': 'Base(#root,0)', 'Version_wb1': 'V1', 'Commercial_wb1': 'YT020101'}  # 修改这里可测试不同年份
     main(para1, para2)

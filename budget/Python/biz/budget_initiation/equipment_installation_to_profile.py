@@ -9,7 +9,7 @@ added for 设备、设施台账接入equipment_profile
 """
 
 try:
-    from common._debug import para1, para2
+    from budegt.__debug import para1, para2
     print(para1)
 except ImportError:
     para1 = para2 = {}
@@ -317,5 +317,5 @@ def main(p1, p2):
 
 if __name__ == "__main__":
     # from conf._evn import p1, p2
-
+    from budget.__debug import para1, para2
     main(para1, para2)

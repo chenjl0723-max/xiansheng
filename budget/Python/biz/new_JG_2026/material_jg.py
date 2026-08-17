@@ -518,7 +518,6 @@ def main(p1, p2):
     # 再执行 MQ00（电度电量）
     if power_materials:
         print(f"🔧 处理电耗物料组: MQ00")
-        # material_processing_mq00(p1, p2, year, Version)
         calc_y0_budget_mq00(p1, p2,Entity, year, Version)
     else:
         print("⏭️ 无 MQ00 电耗物料，跳过")

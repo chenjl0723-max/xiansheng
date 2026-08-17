@@ -7,7 +7,7 @@ added for 预算启动时，将上一年的预算明细数据存进历史表中�
 """
 
 try:
-    from common._debug import para1, para2
+    from budget.__debug import para1, para2
     print(para1)
 except ImportError:
     para1 = para2 = {}

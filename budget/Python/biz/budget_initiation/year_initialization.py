@@ -106,13 +106,13 @@ class Initialize:
         tax_cube_actual = tax_cube.copy()
         tax_cube_actual['Scenario'] = 'Actual'
         print(tax_cube_actual)
-        cube.save(tax_cube_actual)
+        cube.save(tax_cube_actual ,chunksize=200000)
 
 
         tax_cube_budget = tax_cube.copy()
         tax_cube_budget['Year'] = year
         print(tax_cube_budget)
-        cube.save(tax_cube_budget)
+        cube.save(tax_cube_budget, chunksize=200000)
 
 
 
@@ -128,5 +128,5 @@ def main(p1, p2):
 
 
 if __name__ == "__main__":
-    from common._debug import para1,para2
+    from budget.__debug import para1,para2
     main(para1,para2)

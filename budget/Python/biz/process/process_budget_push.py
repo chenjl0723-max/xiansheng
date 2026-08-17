@@ -425,7 +425,7 @@ def df_push(df,p1):
     table = ck('bewg_budget_data')
     table.delete({'Source':'YWYS'})
     # tb = DataTableMySQL('bewg_budget_data')
-    table.insert_df(df,chunksize=50000)
+    table.insert_df(df,chunksize=200000)
 
 
 

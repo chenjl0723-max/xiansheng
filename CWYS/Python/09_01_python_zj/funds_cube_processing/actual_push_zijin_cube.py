@@ -9,7 +9,7 @@
 
 
 try:
-    from CWYS._debug import para1, para2
+    from CWYS.__debug import para1, para2
     # print(para1)
 except ImportError:
     para1 = para2 = {}
@@ -149,15 +149,15 @@ def actual_processing(p1, p2,year,Version):
         "Version": Version,
     }
     cube.delete(expr_dict_actual)
-    # expr_dict_actual = {
-    #     "Year": year,
-    #     "Scenario":'Actual_adj',
-    #     "Entity_FR": "IDescendant(#root,0)",
-    #     "Account_zijin": "IDescendant(#root,0)",
-    #     "Period": ["Base(TotalPeriod,0)","Sep"],
-    #     "Version": Version,
-    # }
-    # cube.delete(expr_dict_actual)
+    expr_dict_actual = {
+        "Year": year,
+        "Scenario":'Actual_adj',
+        "Entity_FR": "IDescendant(#root,0)",
+        "Account_zijin": "IDescendant(#root,0)",
+        "Period": ["Base(TotalPeriod,0)","Sep"],
+        "Version": Version,
+    }
+    cube.delete(expr_dict_actual)
 
     cube.save(act_df,chunksize=400000)
 
@@ -209,7 +209,11 @@ def main(p1, p2):
             BudYear = Variable('Variable').get('BudYear')
             year = str(int(BudYear) - 1)
 
-        Version = Variable('Variable').get('Edit_Ver')
+        if 'Version' in p2 and p2['Version']:
+            Version = p2['Version']
+        else:
+            Version = Variable('Variable').get('Edit_Ver')
+        Version = 'V4'
 
         actual_processing(p1, p2,year,Version)
         countSuccess = 1
@@ -257,6 +261,6 @@ def main(p1, p2):
 
 # debug
 if __name__ == '__main__':
-    para2 = {'Year':'2025'}
+    para2 = {'Year':'2026','Version':'V1'}
     main(para1, para2)
 

@@ -243,7 +243,7 @@ def main(p1, p2):
 
 if __name__ == '__main__':
     try:
-        from common._debug import para1
+        from budget.__debug import para1
     except:
         pass
     para2 = {}

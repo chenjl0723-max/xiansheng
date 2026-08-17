@@ -26,6 +26,7 @@ from deepfos.element.dimension import Dimension
 
 # 普通科目（上年预测取前两年10-12，本年预算取上年1-9 + 前两年10-12）
 NORMAL_ACCOUNTS = [
+    # 水价收入
     'PL01010101', 'YW0105', 'YW0106', 'YW0107',
     'PL01010102', 'YW0108', 'YW0109',
     'PL01010103', 'YW0101', 'YW0104',
@@ -196,8 +197,12 @@ def copy_special_accounts(cube, Entity, year):
 
     df_0102_budget['data_y2'] = df_0102_budget['data_y2'].fillna(0)
 
+    # 预算 = year-1实际 * (1 + (year-1实际 - year-2实际) / year-2实际)
+    mask = df_0102_budget['data_y2'] != 0
     # 预算 = year-1实际 * (1 + (year-1实际 - year-2实际))
     df_0102_budget['data'] = df_0102_budget['data_ly'] * (1 + (df_0102_budget['data_ly'] - df_0102_budget['data_y2']) / df_0102_budget['data_y2'])
+
+    df_0102_budget.loc[~mask, 'data'] = df_0102_budget.loc[~mask, 'data_ly']
 
     # 过滤有效数据
     df_0102_budget = df_0102_budget[(df_0102_budget['data'].notna()) & (df_0102_budget['data'] != 0)].copy()
@@ -222,10 +227,10 @@ def copy_special_accounts(cube, Entity, year):
     # =========================================================
     # 3. YW0202 按 genarate_day 逻辑生成日历天数
     # =========================================================
-    generate_yw0202_days(cube, Entity, year)
+    generate_yw0202_days(cube, year)
 
 
-def generate_yw0202_days(cube, Entity, year):
+def generate_yw0202_days(cube, year):
     """
     YW0202 运行天数：按 genarate_day 逻辑生成日历天数
       预算: year年 1-12月 → Budget/Y0
@@ -233,15 +238,12 @@ def generate_yw0202_days(cube, Entity, year):
     """
     last_year = int(year) - 1
 
-    # 获取实体列表
-    if Entity == 'Base(#root,0)':
-        dim = Dimension('Entity', path='/02_Dimension')
-        entity_df = pd.DataFrame(dim.query(
-            "AndFilter(Base(#root,0),Attr(isActive,'Y'))", as_model=False, fields=['name']
-        ))
-        entity_list = entity_df['name'].tolist()
-    else:
-        entity_list = [Entity]
+    # 获取实体列表（始终取全组织层级）
+    dim = Dimension('Entity', path='/02_Dimension')
+    entity_df = pd.DataFrame(dim.query(
+        "AndFilter(Base(#root,0),Attr(isActive,'Y'))", as_model=False, fields=['name']
+    ))
+    entity_list = [e for e in entity_df['name'].tolist() if not e.startswith('XN')]
 
     result_list = []
 
@@ -329,11 +331,9 @@ def main(p1, p2):
 
 # debug
 if __name__ == '__main__':
-    test_para2 = {
+    para2 = {
         'Year_wb1': '2026',
-        'Entity_wb1': 'Y1320210019',
+        'Entity_wb1': 'Base(1,0)',
     }
-    if para2 and para2 != {} and 'Year_wb1' in para2:
-        main(para1, para2)
-    else:
-        main(para1, test_para2)
+
+    main(para1, para2)

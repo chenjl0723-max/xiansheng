@@ -9,7 +9,7 @@
 
 
 try:
-    from CWYS._debug import para1, para2
+    from CWYS.__debug import para1, para2
     # print(para1)
 except ImportError:
     para1 = para2 = {}
@@ -92,7 +92,8 @@ def push_to_cube(df,Scenario,Version,Year):
     df['Scenario'] = Scenario
     df['Misc1'] = 'nomisc1'
     df['Misc2'] = 'nomisc2'
-    df['Version'] = Version
+    # df['Version'] = Version
+    df['Version'] = 'V4'
     df['Measure'] = 'Expenses'
 
 

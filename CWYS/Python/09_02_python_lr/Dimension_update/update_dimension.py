@@ -1,5 +1,5 @@
 try:
-    from CWYS._debug import para1#, para2
+    from CWYS.__debug import para1#, para2
 except ImportError:
     #para1 = para2 = {}
     print('~~~')
@@ -260,5 +260,5 @@ def main(p1, p2):
 
 if __name__ == '__main__':
     # p2={'dim':'entity_test2','dt':'20241126'}
-    p2={"dim":"Entity_GL"}
+    p2={"dim":"Entity_FR"}
     main(para1, p2)

@@ -119,7 +119,7 @@ def tax_rate_processing_act(act_df, Year,Version):
             "Version": Version,
         }
         cube.insert_null(expr_dict_actual)
-        df_all['Version'] = 'V4'
+        df_all['Version'] = 'V1'
         push_processing(df_all, Year,'Actual')
         return
 
@@ -142,7 +142,7 @@ def tax_rate_processing_act(act_df, Year,Version):
     df_act_tax = df_act_tax.drop(columns=['rate_data'], errors='ignore')
 
     df_all = pd.concat([act_df, df_act_tax], ignore_index=True)
-    df_all['Version'] = Version
+    df_all['Version'] = 'V1'
     expr_dict_actual = {
         "Year": Year,
         "Scenario": "Actual",
@@ -391,6 +391,6 @@ def main(p1, p2):
 
 # debug
 if __name__ == '__main__':
-    para2 = {'Year':'2025'}
+    para2 = {'Year':'2026'}
     main(para1, para2)
 

@@ -126,10 +126,12 @@ def CWYS_processing(p1, p2, df,account_scope):
 
     # 获取变量年
     Year = Variable('Variable').get('BudYear')
+    Year = '2027'
     Last_year =str(int(Year)-1)
+    Last_year = '2026'
 
     Version = Variable('Variable').get('Edit_Ver')
-    df['Version'] = Version
+    # df['Version'] = 'V4'
 
     # 排除特定科目编码
     exclude_accounts = {'SYW02020302', 'SYW02020301', 'SYW010105', 'SYW010103', 'SYW010104'}
@@ -161,9 +163,19 @@ def CWYS_processing(p1, p2, df,account_scope):
     del df['id']
     del df['expectedName']
 
-    # 单位换算
-    df['data'] = df['data'] * 10000
+    # 单位换算：仅PL开头的科目*10000
+    df['data'] = np.where(df['Account_lirun'].astype(str).str.startswith('PL'), df['data'] * 10000, df['data'])
+    df['Year'] = df['Year'].apply(lambda x: str(int(x) + 1))
 
+    # YW/SYW 开头科目：删除不含税数据，将含税数据复制一份到不含税
+    yw_syw_mask = df['Account_lirun'].astype(str).str.startswith(('YW', 'SYW'))
+    yw_syw_df = df[yw_syw_mask]
+    # 删除 YW/SYW 科目的 NoTax 数据
+    df = df[~(yw_syw_mask & (df['Comprehensive'] == 'NoTax'))]
+    # 取 YW/SYW 科目的 Tax 数据复制一份，Comprehensive 改为 NoTax
+    tax_df = yw_syw_df[yw_syw_df['Comprehensive'] == 'Tax'].copy()
+    tax_df['Comprehensive'] = 'NoTax'
+    df = pd.concat([df, tax_df], ignore_index=True)
 
     # df = df[df['Commercial'].notna()]
 
@@ -191,8 +203,10 @@ def CWYS_processing(p1, p2, df,account_scope):
     }
     cube.delete(expr_dict_budget)
     cube.delete(expr_dict_forecast)
-    # df['Version'] = 'V1'
-    cube.save(df,chunksize=50000)
+    print('删除完成')
+
+
+    cube.save(df,chunksize=200000)
 
 def main(p1, p2):
     start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
