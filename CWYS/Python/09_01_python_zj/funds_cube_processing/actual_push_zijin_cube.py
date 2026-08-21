@@ -9,7 +9,7 @@
 
 
 try:
-    from CWYS.__debug import para1, para2
+    from CWYS._debug import para1, para2
     # print(para1)
 except ImportError:
     para1 = para2 = {}
@@ -143,21 +143,21 @@ def actual_processing(p1, p2,year,Version):
     expr_dict_actual = {
         "Year": year,
         "Scenario":'Actual_adjb',
-        "Entity_FR": "IDescendant(#root,0)",
-        "Account_zijin": "IDescendant(#root,0)",
-        "Period": ["Base(TotalPeriod,0)","Sep"],
+        "Entity_FR": "Base(#root,0)",
+        "Account_zijin": "Base(#root,0)",
+        "Period": ['1','2','3','4','5','6','7','8','9','10','11','12','Sep'],
         "Version": Version,
     }
-    cube.delete(expr_dict_actual)
+    cube.insert_null(expr_dict_actual)
     expr_dict_actual = {
         "Year": year,
         "Scenario":'Actual_adj',
-        "Entity_FR": "IDescendant(#root,0)",
-        "Account_zijin": "IDescendant(#root,0)",
-        "Period": ["Base(TotalPeriod,0)","Sep"],
+        "Entity_FR": "Base(#root,0)",
+        "Account_zijin": "Base(#root,0)",
+        "Period": ['1','2','3','4','5','6','7','8','9','10','11','12','Sep'],
         "Version": Version,
     }
-    cube.delete(expr_dict_actual)
+    cube.insert_null(expr_dict_actual)
 
     cube.save(act_df,chunksize=400000)
 
@@ -213,7 +213,7 @@ def main(p1, p2):
             Version = p2['Version']
         else:
             Version = Variable('Variable').get('Edit_Ver')
-        Version = 'V4'
+        # Version = 'V1'
 
         actual_processing(p1, p2,year,Version)
         countSuccess = 1
@@ -261,6 +261,6 @@ def main(p1, p2):
 
 # debug
 if __name__ == '__main__':
-    para2 = {'Year':'2026','Version':'V1'}
+    para2 = {'Year':'2025','Version':'V1'}
     main(para1, para2)
 

@@ -126,12 +126,13 @@ def CWYS_processing(p1, p2, df,account_scope):
 
     # 获取变量年
     Year = Variable('Variable').get('BudYear')
-    Year = '2027'
+
     Last_year =str(int(Year)-1)
-    Last_year = '2026'
 
     Version = Variable('Variable').get('Edit_Ver')
-    # df['Version'] = 'V4'
+    # Year = '2027'
+    # Last_year = '2026'
+    df['Version'] = 'V1'
 
     # 排除特定科目编码
     exclude_accounts = {'SYW02020302', 'SYW02020301', 'SYW010105', 'SYW010103', 'SYW010104'}
@@ -144,7 +145,7 @@ def CWYS_processing(p1, p2, df,account_scope):
 
     missing_entities = df[~df['Account_lirun'].isin(account_list['name'])]['Account_lirun'].unique()
     if len(missing_entities) > 0:
-        print(f"以下项目在业态维度中不存在，将被过滤掉: {list(missing_entities)}")
+        print(f"以下科目不存在，将被过滤掉: {list(missing_entities)}")
 
 
     # 关联业态
@@ -155,7 +156,7 @@ def CWYS_processing(p1, p2, df,account_scope):
     # 输出不存在于业态维度中的项目
     missing_entities = df[~df['Entity_GL'].isin(entity_df['Entity_GL'])]['Entity_GL'].unique()
     if len(missing_entities) > 0:
-        print(f"以下项目在业态维度中不存在，将被过滤掉: {list(missing_entities)}")
+        print(f"以下项目不存在，将被过滤掉: {list(missing_entities)}")
 
     df = df[df['Entity_GL'].isin(entity_df['Entity_GL'])]
     df = df.merge(entity_df, how='left', on='Entity_GL')
@@ -165,7 +166,7 @@ def CWYS_processing(p1, p2, df,account_scope):
 
     # 单位换算：仅PL开头的科目*10000
     df['data'] = np.where(df['Account_lirun'].astype(str).str.startswith('PL'), df['data'] * 10000, df['data'])
-    df['Year'] = df['Year'].apply(lambda x: str(int(x) + 1))
+    # df['Year'] = df['Year'].apply(lambda x: str(int(x) + 1))
 
     # YW/SYW 开头科目：删除不含税数据，将含税数据复制一份到不含税
     yw_syw_mask = df['Account_lirun'].astype(str).str.startswith(('YW', 'SYW'))

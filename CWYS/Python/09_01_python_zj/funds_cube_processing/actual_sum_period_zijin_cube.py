@@ -9,7 +9,7 @@
 
 
 try:
-    from CWYS.__debug import para1, para2
+    from CWYS._debug import para1, para2
     # print(para1)
 except ImportError:
     para1 = para2 = {}
@@ -460,6 +460,6 @@ def main(p1, p2):
 
 # debug
 if __name__ == '__main__':
-    para2 = {'Year_wb1':'2026','Entity_FR_wb1':'D000001','Version_wb1':'V1'}
+    para2 = {'Year_wb1':'2027','Entity_FR_wb1':'D000001','Version_wb1':'V1'}
     main(para1, para2)
 

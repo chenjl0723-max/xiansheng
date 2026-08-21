@@ -45,14 +45,14 @@ def sum_actual_period_processing(p1,p2):
 
     cube = FinancialCube('sub_profit_cube')
     fix_act_adj =   "Year{%s}->Scenario{Actual}->Version{%s}->Period{Base(TotalPeriod,0)}->Comprehensive{Tax;NoTax}->"\
-                    "Entity_GL{IBase(%s,0)}->Measure{Expenses}->Account_lirun{Base(PL60,0);Base(YW,0)}->"\
+                    "Entity_GL{IBase(%s,0)}->Measure{Expenses}->Account_lirun{Base(PL60,0);Base(YW,0);SYW02030601;SYW02030602}->"\
                     "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}"\
                       % (last_Year, Version, Entity_GL)
 
     act_df =  cube.query(fix_act_adj, compact=False)
 
     fix_forecast = "Year{%s}->Scenario{Forecast}->Version{%s}->Period{Base(TotalPeriod,0)}->Comprehensive{Tax;NoTax}->"\
-                    "Entity_GL{IBase(%s,0)}->Measure{Expenses}->Account_lirun{Base(PL60,0);Base(YW,0)}->"\
+                    "Entity_GL{IBase(%s,0)}->Measure{Expenses}->Account_lirun{Base(PL60,0);Base(YW,0);SYW02030601;SYW02030602}->"\
                     "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}"\
                       % (last_Year, Version, Entity_GL)
 
@@ -106,7 +106,7 @@ def sum_actual_period_processing(p1,p2):
 
 
     def_fix =  "Year{%s}->Scenario{Actual}->Version{%s}->Period{Noperiod}->Comprehensive{Tax;NoTax}->"\
-                    "Entity_GL{IBase(%s,0)}->Measure{Expenses}->Account_lirun{Base(PL60,0);Base(YW,0)}->"\
+                    "Entity_GL{IBase(%s,0)}->Measure{Expenses}->Account_lirun{Base(PL60,0);Base(YW,0);SYW02030601;SYW02030602}->"\
                     "Misc1{nomisc1}->Misc2{nomisc2}->Commercial{Base(YT00,0)}"\
                       % (last_Year, Version, Entity_GL)
 

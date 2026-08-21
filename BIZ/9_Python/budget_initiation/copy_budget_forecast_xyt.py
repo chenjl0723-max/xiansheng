@@ -22,18 +22,19 @@ def copy_budget(p1, p2, cube):
     tgt_year = '2027'
 
     # 查询源数据: 2026 Budget Y1
-    expr_query = "Year{%s}->Scenario{Budget}->Version{Y1}" % src_year
+    expr_query = "Year{%s}->Scenario{Budget}->Version{Y4}" % src_year
     df = cube.query(expr_query, compact=False)
 
     if df.empty:
-        print("【小业态-Budget 复制】源数据为空，Year=%s, Scenario=Budget, Version=Y1" % src_year)
+        print("【小业态-Budget 复制】源数据为空，Year=%s, Scenario=Budget, Version=Y4" % src_year)
         return 0
 
     row_cnt = len(df)
-    print("【小业态-Budget 复制】查询到源数据 %d 条, Year=%s, Scenario=Budget, Version=Y1" % (row_cnt, src_year))
+    print("【小业态-Budget 复制】查询到源数据 %d 条, Year=%s, Scenario=Budget, Version=Y4" % (row_cnt, src_year))
 
     # 修改年份为 2027
     df['Year'] = tgt_year
+    df['Version'] = 'Y1'
 
     # 先删除目标范围数据，避免重复
     expr_del = "Year{%s}->Scenario{Budget}->Version{Y1}" % tgt_year
@@ -56,18 +57,19 @@ def copy_forecast(p1, p2, cube):
     tgt_year = '2026'
 
     # 查询源数据: 2025 Forecast Y1
-    expr_query = "Year{%s}->Scenario{Forecast}->Version{Y1}" % src_year
+    expr_query = "Year{%s}->Scenario{Forecast}->Version{Y4}" % src_year
     df = cube.query(expr_query, compact=False)
 
     if df.empty:
-        print("【小业态-Forecast 复制】源数据为空，Year=%s, Scenario=Forecast, Version=Y1" % src_year)
+        print("【小业态-Forecast 复制】源数据为空，Year=%s, Scenario=Forecast, Version=Y4" % src_year)
         return 0
 
     row_cnt = len(df)
-    print("【小业态-Forecast 复制】查询到源数据 %d 条, Year=%s, Scenario=Forecast, Version=Y1" % (row_cnt, src_year))
+    print("【小业态-Forecast 复制】查询到源数据 %d 条, Year=%s, Scenario=Forecast, Version=Y4" % (row_cnt, src_year))
 
     # 修改年份为 2026
     df['Year'] = tgt_year
+    df['Version'] = 'Y1'
 
     # 先删除目标范围数据，避免重复
     expr_del = "Year{%s}->Scenario{Forecast}->Version{Y1}" % tgt_year
@@ -82,12 +84,6 @@ def copy_forecast(p1, p2, cube):
 
 def main(p1, p2):
 
-    expr_del = "Year{2027}->Scenario{Budget}->Version{Y1}"
-    cube = FinancialCube('S_Cube')
-
-    d = cube.insert_null(expr_del)
-    expr_del = "Year{2026}->Scenario{Forecast}->Version{Y1}"
-    d = cube.insert_null(expr_del)
 
 
     # print("【小业态-Budget 复制】删除目标数据 %s, Year=%s" % (d, tgt_year))

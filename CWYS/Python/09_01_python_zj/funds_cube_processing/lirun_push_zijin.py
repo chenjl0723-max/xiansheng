@@ -5,7 +5,7 @@
 '''
 
 try:
-    from CWYS.__debug import para1, para2
+    from CWYS._debug import para1, para2
 except ImportError:
     para1 = para2 = {}
 
@@ -102,17 +102,21 @@ def main_processing(p1, p2,Version,Year,Entity,cube):
     account_mapping = df.copy()
 
 
+    XN_mapping = DataTableMySQL('pl_virt_proj_fund_real_map')
+    df_xn = XN_mapping.select(columns=['pl_virt_proj_code','fund_real_proj_code'],where='year = %s' % Year).rename(columns={'pl_virt_proj_code':'Entity_GL','year':'Year'})
+
+
     # 获取实际数场景筛选条件
-    pov_list = df_json(result.get('Actual'),'Actual')
-    df_actual = query_lirun_cube(pov_list,str(int(Year) - 1),Version,Entity,cube)
-
-    # 获取实际数场景删除条件
-    pov_list = df_json(result_del.get('Actual'),'Actual')
-    del_zijin_cube(pov_list,'Actual_adjb',str(int(Year) - 1),Version,Entity)
-
-    # 实际数科目映射+虚拟项目映射+汇总+写入资金模型
-    df_actual = mapping_and_group(df_actual,account_mapping)
-    push_to_cube(df_actual,'Actual_adjb')
+    # pov_list = df_json(result.get('Actual'),'Actual')
+    # df_actual = query_lirun_cube(pov_list,str(int(Year) - 1),Version,Entity,cube)
+    #
+    # # 获取实际数场景删除条件
+    # pov_list = df_json(result_del.get('Actual'),'Actual')
+    # del_zijin_cube(pov_list,'Actual_adjb',str(int(Year) - 1),Version,Entity)
+    #
+    # # 实际数科目映射+虚拟项目映射+汇总+写入资金模型
+    # df_actual = mapping_and_group(df_actual,account_mapping)
+    # push_to_cube(df_actual,'Actual_adjb')
 
 
 
@@ -125,7 +129,7 @@ def main_processing(p1, p2,Version,Year,Entity,cube):
     del_zijin_cube(pov_list,'Forecast',str(int(Year) - 1),Version,Entity)
 
     # 预测数科目映射+虚拟项目映射+汇总+写入资金模型
-    df_forecast = mapping_and_group(df_forecast,account_mapping)
+    df_forecast = mapping_and_group(df_forecast,account_mapping,df_xn)
     push_to_cube(df_forecast,'Forecast')
 
 
@@ -139,7 +143,7 @@ def main_processing(p1, p2,Version,Year,Entity,cube):
     del_zijin_cube(pov_list,'budget_adjb',Year,Version,Entity,)
 
     # 预算数科目映射+虚拟项目映射+汇总+写入资金模型
-    df_budget = mapping_and_group(df_budget,account_mapping)
+    df_budget = mapping_and_group(df_budget,account_mapping,df_xn)
     push_to_cube(df_budget,'budget_adjb')
 
 
@@ -222,7 +226,7 @@ def del_zijin_cube(pov_list,Scenario,Year,Version,Entity):
 
 
 
-def mapping_and_group(df,account_mapping):
+def mapping_and_group(df,account_mapping,df_xn):
     # 科目映射+虚拟项目转实体项目+汇总金额
     if df.empty:
         return df
@@ -238,17 +242,17 @@ def mapping_and_group(df,account_mapping):
 
     df = pd.concat([df,df_CF],ignore_index=True)
 
-    XN_mapping = DataTableMySQL('pl_virt_proj_fund_real_map')
-    df_xn = XN_mapping.select(columns=['year','pl_virt_proj_code','fund_real_proj_code']).rename(columns={'pl_virt_proj_code':'Entity_GL','year':'Year'})
+    # XN_mapping = DataTableMySQL('pl_virt_proj_fund_real_map')
+    # df_xn = XN_mapping.select(columns=['year','pl_virt_proj_code','fund_real_proj_code']).rename(columns={'pl_virt_proj_code':'Entity_GL','year':'Year'})
 
-    df = pd.merge(df, df_xn, how='left', on=['Entity_GL','Year'])
+    df = pd.merge(df, df_xn, how='left', on=['Entity_GL'])
     # 如果fund_real_proj_code不为空，则用其替换Entity_GL，否则保持原Entity_GL
     df['Entity_GL'] = df.apply(
         lambda row: row['fund_real_proj_code'] if pd.notna(row['fund_real_proj_code']) else row['Entity_GL'],
         axis=1
     )
     # 删除合并后多余的列
-    df = df.drop(columns=['fund_real_proj_code'])
+    df = df.drop(columns=['fund_real_proj_code','Commercial'])
 
     if df.empty:
         return df
@@ -262,7 +266,7 @@ def mapping_and_group(df,account_mapping):
 
 def push_to_cube(df,Scenario):
     """推送数据到 rev_profit_cube"""
-    if df.empty:
+    if df is None or df.empty:
         return
     df = df.rename(columns={'Entity_GL':'Entity_FR','Account_lirun':'Account_zijin'})
     # 替换Period列中的'Sepmtd'为'Sep'
@@ -271,9 +275,17 @@ def push_to_cube(df,Scenario):
     df['Comprehensive'] = 'nocompr'
     df['Counterparty'] = 'nocp'
     # 1. 过滤维度中存在的成员
-    entity_dim = Dimension('Entity_FR')
-    entity_list = pd.DataFrame(entity_dim.query("Base(#root,0)", fields=['name'], as_model=False))
-    df = df[df['Entity_FR'].isin(entity_list['name'].tolist())]
+
+    entity_dim =  Dimension('Entity_FR')
+    entity_df = pd.DataFrame(entity_dim.query(expression="Base(#root,0)", fields=['name','ud2'], as_model=False)).drop(['id','expectedName'],axis=1).rename(columns={
+        'name':'Entity_FR',
+        'ud2':'Commercial',})
+    entity_df = entity_df.drop_duplicates(subset=['Entity_FR'])
+
+    df = df.merge(entity_df, how='left', on='Entity_FR')
+    df = df[df['Commercial'].notna() & (df['Commercial'] != '')]
+    df = df[df['Entity_FR'].isin(entity_df['Entity_FR'].tolist())]
+
 
     account_dim = Dimension('Account_zijin')
     account_list = pd.DataFrame(account_dim.query("Base(#root,0)", fields=['name'], as_model=False))
@@ -313,7 +325,7 @@ def main(p1, p2):
     try:
         # 统一获取全局参数
         Version = Variable('Variable').get('Edit_Ver')
-        Version = 'V4'
+        # Version = 'V4'
 
         if 'Year_wb1' in p2 and p2['Year_wb1']:
             Year = str(p2['Year_wb1'])

@@ -70,7 +70,12 @@ def actual_processing(p1, p2, Version, Year):
         # "counterparty": "Counterparty",
     })
 
-
+    # 按 期间/年度/主体/科目 汇总历史预算数据
+    budget_df = group_and_sum(
+        budget_df,
+        group_cols=['Period', 'Year', 'Entity_FR', 'Account_zijin'],
+        value_col='data'
+    )
 
     push_to_cube(budget_df,'budget_adjb',Version,Year)
 
@@ -87,13 +92,15 @@ def push_to_cube(df,Scenario,Version,Year):
     df = df.merge(entity_df, how='left', on='Entity_FR')
     df = df[df['Commercial'].notna() & (df['Commercial'] != '')]
 
+
+    Version = 'V1'
     df['Counterparty'] = 'nocp'
     df['Comprehensive'] = 'nocompr'
     df['Scenario'] = Scenario
     df['Misc1'] = 'nomisc1'
     df['Misc2'] = 'nomisc2'
     # df['Version'] = Version
-    df['Version'] = 'V4'
+    df['Version'] = 'V1'
     df['Measure'] = 'Expenses'
 
 
@@ -179,6 +186,6 @@ def main(p1, p2):
 
 # debug
 if __name__ == '__main__':
-    para2 = {'Year':'2026'}
+    para2 = {'Year':'2025'}
     main(para1, para2)
 

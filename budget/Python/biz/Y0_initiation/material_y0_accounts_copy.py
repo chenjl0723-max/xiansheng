@@ -125,7 +125,7 @@ def main(p1, p2):
 if __name__ == '__main__':
     # 测试用，可在 para2 中传参
     test_para2 =  {'elementName': '_Material_Unit', 'folderId': 'DIRacd99f1aefd0', 'sheetName': '原材料单耗填报（非集采药剂）',
-     'sheetId': 'SHTdb258039787a486589a8827c08a1eafb', 'Year_wb1': '2026', 'Entity_wb1': 'XN61001_01',
+     'sheetId': 'SHTdb258039787a486589a8827c08a1eafb', 'Year_wb1': '2027', 'Entity_wb1': 'Base(1,0)',
      'Department_wb1': 'Operation', 'Tax_wb1': 'Tax', 'Version_wb1': 'Y0', 'Material_wb1': 'Nomaterial',
      'Allocation_wb1': 'Original', 'Measure_wb1': 'Expenses', 'Misc1_wb1': 'Nomisc1', 'Misc2_wb1': 'Nomisc2'}
 

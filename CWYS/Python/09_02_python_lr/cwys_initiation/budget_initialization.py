@@ -58,7 +58,7 @@ def init_pc(year):
         "Version": "Version{Base(#root, 0)}",
         "Scenario": "Scenario{Actual;Budget;Forecast;Difference}",
     }
-    data_block_map = {"Entity_GL": 'Entity_GL{IDescendant(D000001, 0)}'}
+    data_block_map = {"Entity_GL": 'Entity_GL{IDescendant(#root, 0)}'}
     # 执行初始化
     D = cube1.pc_upsert(
         process_map=process_map, data_block_map=data_block_map, status="Status08"
@@ -95,7 +95,7 @@ def init_pc_status01(year):
 
     }
 
-    data_block_map = {"Entity_GL": 'Entity_GL{IDescendant(D000001, 0)}'}
+    data_block_map = {"Entity_GL": 'Entity_GL{IDescendant(#root, 0)}'}
     data_block_map_act = {"Entity_GL":"Entity_GL{Base(PT_D000001,0);Base(ZG_D000001,0);Base(D003437,0);Base(D003440,0);Base(D003448,0)}"}
 
     # 执行初始化
@@ -151,7 +151,7 @@ def merge_process_block_entity(year):
 
     # print(len(block_data))
     # 获取 Entity维度中存在的 entity。29400 5880 1118
-    entity_data = get_dim("Entity_GL", "Entity_GL{Descendant(D000001, 0)}")
+    entity_data = get_dim("Entity_GL", "Entity_GL{Descendant(#root, 0)}")
     # print(len(entity_data))
     entity_data = entity_data.rename(columns={"name": "entity_id"})
     block_data = block_data.rename(
@@ -307,7 +307,7 @@ def main(p1, p2):
 
 if __name__ == '__main__':
     try:
-        from CWYS._debug import para1, para2
+        from CWYS.__debug import para1, para2
     except:
         pass
     para2 = {}

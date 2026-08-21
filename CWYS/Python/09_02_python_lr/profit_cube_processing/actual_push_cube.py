@@ -152,7 +152,7 @@ def tax_rate_processing_act(act_df, Year,Version):
         "Period": "Base(TotalPeriod,0)",
         "Version": Version,
     }
-    cube.insert_null(expr_dict_actual)
+    cube.delete(expr_dict_actual)
     push_processing(df_all, Year,'Actual')
 
 
